@@ -11,9 +11,9 @@ COPY . .
 RUN RUN go build -o reverse-proxy
 
 # Expose the port that your Go service will listen on
-EXPOSE 8080
+EXPOSE 3002
 
-ENV PORT=8080
+ENV PORT=3002
 ENV SERVICE_HOSTNAME=http://ec2-13-48-148-19.eu-north-1.compute.amazonaws.com
 ENV OTEL_SERVICE_NAME=infrastructure-reverse-proxy
 ENV OTEL_API_HOST=http://ec2-16-171-166-86.eu-north-1.compute.amazonaws.com:9411
