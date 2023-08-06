@@ -18,8 +18,7 @@ ENV SERVICE_HOSTNAME=http://ec2-13-48-148-19.eu-north-1.compute.amazonaws.com
 ENV OTEL_SERVICE_NAME=infrastructure-reverse-proxy
 ENV OTEL_API_HOST=http://ec2-16-171-166-86.eu-north-1.compute.amazonaws.com:9411
 
-# Set the command to run your Go service when the container starts
-CMD ["./go-service"]
+CMD ["chmod +x ./reverse-proxy", "./reverse-proxy"]
 
-# docker build -t reverse-proxy .
-# docker run -p 8080:8080 --env-file ../.env reverse-proxy
+# 
+# docker build -t infrastructure-reverse-proxy . && docker run -d -p 8080:8080 -p 80:8080  --env-file .env infrastructure-reverse-proxy

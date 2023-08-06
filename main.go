@@ -58,7 +58,6 @@ func reverseProxyHandlerMiddleware(targetURL *url.URL) http.HandlerFunc {
 	proxy := httputil.NewSingleHostReverseProxy(targetURL)
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		// Modify request headers if needed
 		r.Host = targetURL.Host
 		r.URL.Host = targetURL.Host
 		r.URL.Scheme = targetURL.Scheme
@@ -71,6 +70,7 @@ func reverseProxyHandlerMiddleware(targetURL *url.URL) http.HandlerFunc {
 			ctx = propagation.TraceContext{}.Extract(ctx, propagation.HeaderCarrier(r.Header))
 		}
 
+		// start a new span for the actual proxy request and defer its end
 		_, span := otel.Tracer(os.Getenv("OTEL_SERVICE_NAME")).Start(ctx, r.URL.Path)
 		defer span.End()
 		
@@ -81,9 +81,8 @@ func reverseProxyHandlerMiddleware(targetURL *url.URL) http.HandlerFunc {
 		// 	}
 		// }
 
-		// log.Printf(span.SpanContext().TraceFlags().String())
 		r.Header.Del("traceparent")
-		r.Header.Add("traceparent", string(childTraceparent))
+		r.Header.Add("traceparent", childTraceparent)
 
 		// Perform the reverse proxy
 		proxy.ServeHTTP(w, r)
@@ -100,7 +99,7 @@ func main() {
 	// backendURL, err := url.Parse("http://172.25.0.3:3000")
 	reverseProxyBackendHost := os.Getenv("SERVICE_HOSTNAME")
 
-	// write traces to a file? For some reason
+	// write traces to a file?
 	l := log.New(os.Stdout, "", 0)
 	f, err := os.Create("traces.txt")
 	if err != nil {
